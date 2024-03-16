@@ -4,6 +4,7 @@ import sys
 
 
 file_path = sys.argv[1]
+
 df = pd.read_csv(file_path)
 columns = df.columns[0:-1]
 

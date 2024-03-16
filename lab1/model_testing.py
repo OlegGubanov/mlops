@@ -2,11 +2,12 @@ import pickle
 import pandas as pd
 import sys
 
+file_path = sys.argv[1]
+model_path = sys.argv[2]
 
-with open('model.pkl', 'rb') as file:
+with open(model_path, 'rb') as file:
     model = pickle.load(file)
 
-file_path = sys.argv[1]
 data = pd.read_csv(file_path)
 x_test = data[data.columns[0:-1]]
 y_test = data["class"]
