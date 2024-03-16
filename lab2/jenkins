@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+
+    environment {
+        TRAIN_FOLDER="${WORKSPACE}/lab2/train"
+        TRAIN_FILENAME="train.csv"
+        TRAIN_PATH="${TRAIN_FOLDER}/${TRAIN_FILENAME}"
+        
+        TEST_FOLDER="${WORKSPACE}/lab2/test"
+        TEST_FILENAME="test.csv"
+        TEST_PATH="${TEST_FOLDER}/${TEST_FILENAME}"
+        
+        MODEL_FILENAME="model.pkl"
+        MODEL_PATH="${WORKSPACE}/lab2/${MODEL_FILENAME}"
+    }
+    
+    stages {
+        stage('checkout') {
+            steps {
+                git url: 'https://github.com/OlegGubanov/mlops', branch: 'main'
+            }
+        }
+        
+        stage('create_folders') {
+            steps {
+                sh 'mkdir -p ${TRAIN_FOLDER}'
+                sh 'mkdir -p ${TEST_FOLDER}'
+            }
+        }
+        
+        stage('dependencies') {
+            steps {
+                dir('lab1') {
+                    sh 'pip install -r requirements.txt'
+                }
+            }
+        }
+        
+        stage('data_creation') {
+            steps {
+                dir('lab1') {
+                    sh 'python3 data_creation.py ${TRAIN_PATH} ${TEST_PATH}'
+                }
+            }
+        }
+        
+        stage('model_preprocessing') {
+            steps {
+                dir('lab1') {
+                    sh 'python3 model_preprocessing.py ${TRAIN_PATH}'
+                    sh 'python3 model_preprocessing.py ${TEST_PATH}'
+                }
+            }
+        }
+        
+        stage('model_preparation') {
+            steps {
+                dir('lab1') {
+                    sh 'python3 model_preparation.py ${TRAIN_PATH} ${MODEL_PATH}'
+                }
+            }
+        }
+        
+        stage('model_testing') {
+            steps {
+                dir('lab1') {
+                    sh 'python3 model_testing.py ${TEST_PATH} ${MODEL_PATH}'
+                }
+            }
+        }
+    }
+}
